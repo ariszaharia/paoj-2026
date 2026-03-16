@@ -10,19 +10,20 @@ package com.pao.laboratory02.exercise1;
 public class Rectangle extends Shape {
 
     // TODO: private double width, height
+    private double width, height;
 
     public Rectangle(double width, double height) {
         super("Rectangle");
-        // TODO: this.width = width; this.height = height
+        this.width = width; this.height = height;
     }
 
     @Override
     public double area() {
-        return 0; // TODO: width * height
+        return this.width * this.height; // TODO: width * height
     }
 
     @Override
     public double perimeter() {
-        return 0; // TODO: 2 * (width + height)
+        return 2 * (this.width + this.height);// TODO: 2 * (width + height)
     }
 }

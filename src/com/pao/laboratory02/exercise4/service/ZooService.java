@@ -65,6 +65,7 @@ public class ZooService {
      *   2. System.out.println("Adăugat: " + a);
      */
     public void addAnimal(Animal a) {
+        animals.add(a);
         // TODO: implementează aici
     }
 
@@ -78,6 +79,9 @@ public class ZooService {
      *   System.out.println("  " + (i+1) + ". " + animals.get(i).describe());
      */
     public void listAll() {
+        for(int i = 0 ; i < animals.size() ; i++){
+            System.out.println(animals.get(i).describe());
+        }
         // TODO: implementează aici
     }
 
@@ -95,6 +99,15 @@ public class ZooService {
      *       La final, verifică if (!found).
      */
     public void listByType(String type) {
+        int ok = 0;
+        for(int i = 0; i< animals.size(); i++){
+            if(animals.getClass().getSimpleName().equals(type)){
+                ok = 1;
+            }
+        }
+        if (ok == 0){
+            System.out.println("Nu exista animale");
+        }
         // TODO: implementează aici
     }
 
@@ -111,6 +124,13 @@ public class ZooService {
      *   3. System.out.println("Cel mai bătrân animal: " + oldest.describe());
      */
     public void findOldest() {
+        Animal oldest = animals.get(0);
+        for (int i = 1; i<animals.size(); i++){
+            if (animals.get(i).getAge() > oldest.getAge()){
+                oldest = animals.get(i);
+            }
+        }
+        System.out.println("Cel mai batran animal: " + oldest.describe());
         // TODO: implementează aici
     }
 }
