@@ -1,5 +1,9 @@
 package com.pao.laboratory03.collections;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.TreeMap;
+import java.util.*;
 /**
  * Exercițiul 1 — Colecții: HashMap și TreeMap
  *
@@ -51,6 +55,40 @@ package com.pao.laboratory03.collections;
 public class Main {
     public static void main(String[] args) {
         // TODO: implementează cele 3 părți de mai sus
+        String[] words = {"java", "python", "java", "c++", "python", "java", "rust", "c++", "go"};
+        HashMap<String , Integer> freq = new HashMap<>();
+
+        for(String word : words){
+            if (freq.containsKey(word)) {
+                freq.put(word, freq.get(word) + 1);
+            }
+            else{
+                freq.put(word, 1);
+            }
+        }
+        System.out.println(freq);
+        System.out.println(freq.get("rust"));
+        System.out.println(freq.keySet());
+        System.out.println(freq.values());
+
+        System.out.println(freq.entrySet());
+
+
+        TreeMap<String, Integer> tree = new TreeMap<>(freq);
+        System.out.println(tree);
+        System.out.println(tree.firstEntry());
+        System.out.println(tree.lastEntry());
+
+
+        HashMap<String, List<String>> mapObj = new HashMap<>();
+
+        mapObj.put("PAOJ", new ArrayList<>(List.of("Ana", "Mihai", "Ion")));
+        mapObj.put("BD", new ArrayList<>(List.of("Ana", "Elena")));
+        System.out.println(mapObj.get("PAOJ"));
+        mapObj.get("BD").add("Denis");
+
+        System.out.println(mapObj.get("BD"));
+
     }
 }
 
