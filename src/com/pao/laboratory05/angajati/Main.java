@@ -1,5 +1,7 @@
 package com.pao.laboratory05.angajati;
 
+import java.util.Scanner;
+
 /**
  * Exercise 3 — Angajați
  *
@@ -12,5 +14,61 @@ package com.pao.laboratory05.angajati;
 public class Main {
     public static void main(String[] args) {
         System.out.println("Cerințele se află în Readme.md — secțiunea Exercise 3.");
+
+        Scanner scanner = new Scanner(System.in);
+        AngajatService service = AngajatService.getInstance();
+
+        while (true) {
+            System.out.println("\n===== Gestionare Angajați =====");
+            System.out.println("1. Adaugă angajat");
+            System.out.println("2. Listare după salariu");
+            System.out.println("3. Caută după departament");
+            System.out.println("0. Ieșire");
+            System.out.print("Opțiune: ");
+
+            int optiune = scanner.nextInt();
+            scanner.nextLine();
+
+            switch(optiune){
+                case 1:
+                    System.out.print("Nume: ");
+                    String nume = scanner.nextLine();
+
+                    System.out.print("Departament (nume): ");
+                    String numeDept = scanner.nextLine();
+
+                    System.out.print("Departament (locatie): ");
+                    String locatie = scanner.nextLine();
+
+                    System.out.print("Salariu: ");
+                    double salariu = scanner.nextDouble();
+                    scanner.nextLine();
+
+                    Departament dept = new Departament(numeDept, locatie);
+                    Angajat a = new Angajat(nume, dept, salariu);
+
+                    service.addAngajat(a);
+                    break;
+
+                case 2:
+                    service.listBySalary();
+                    break;
+
+                case 3:
+                    System.out.print("Departament: ");
+                    String cautare = scanner.nextLine();
+                    service.findByDepartament(cautare);
+                    break;
+
+                case 0:
+                    System.out.println("La revedere!");
+                    scanner.close();
+                    return;
+
+                default:
+                    System.out.println("Opțiune invalidă!");
+
+            }
+        }
     }
 }

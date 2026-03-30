@@ -1,12 +1,12 @@
-package com.pao.laboratory02.comparators;
-
-// EXERCITIU 1: cream in pachetul comparators o clasa Podcast cu durata (secunde, int) si titlu (string)
-// dupa modelul AudioBook.java si Book.java, implementati:
-// 1. toString — pentru afisare frumoasa
-// 2. Comparable<Podcast> cu compareTo — sortare dupa titlu
-// 3. un Comparator extern (PodcastLengthComparator) — sortare dupa durata
-// 4. o metoda main in care cream cateva podcast-uri si le sortam in ambele moduri
-
+//package com.pao.laboratory01.comparators;
+//
+//// EXERCITIU 1: cream in pachetul comparators o clasa Podcast cu durata (secunde, int) si titlu (string)
+//// dupa modelul AudioBook.java si Book.java, implementati:
+//// 1. toString — pentru afisare frumoasa
+//// 2. Comparable<Podcast> cu compareTo — sortare dupa titlu
+//// 3. un Comparator extern (PodcastLengthComparator) — sortare dupa durata
+//// 4. o metoda main in care cream cateva podcast-uri si le sortam in ambele moduri
+//
 //public class Podcast {
 //
 //    // TODO: adauga atributele: title (String), durationInSeconds (int)
@@ -43,6 +43,6 @@ package com.pao.laboratory02.comparators;
 //        System.out.println(java.util.Arrays.toString(podcasts));
 //    }
 //}
-
-// TODO: creeaza o clasa PodcastLengthComparator care implementeaza Comparator<Podcast>
-//  si compara dupa durationInSeconds (vezi AudioBookLengthComparator ca model)
+//
+//// TODO: creeaza o clasa PodcastLengthComparator care implementeaza Comparator<Podcast>
+////  si compara dupa durationInSeconds (vezi AudioBookLengthComparator ca model)

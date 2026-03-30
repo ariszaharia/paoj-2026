@@ -1,4 +1,4 @@
-package com.pao.laboratory03.exercise4.model;
+package com.pao.laboratory02.exercise4.model;
 
 /**
  * ┌─────────────────────────────────────────────────────────────────────────┐
@@ -31,16 +31,21 @@ public class Parrot extends Animal {
 
     // TODO: adaugă atributul private int knownWords
 
+    private int knownWords;
     public Parrot(String name, int age, int knownWords) {
         super(name, age);
+        this.knownWords = knownWords;
         // TODO: asignează this.knownWords = knownWords
     }
 
     // TODO: adaugă getKnownWords()
+    public int getKnownWords(){
+        return this.knownWords;
+    }
 
     @Override
     public String sound() {
-        return ""; // TODO: returnează "Squawk! (știe X cuvinte)"
+        return "Squawk!(stie" + getKnownWords() + "cuvinte)"; // TODO: returnează "Squawk! (știe X cuvinte)"
         // Hint: return "Squawk! (știe " + knownWords + " cuvinte)";
     }
 }
