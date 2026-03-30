@@ -1,5 +1,4 @@
-package com.pao.laboratory05.Playlist;
-import com.pao.laboratory05.Song;
+package com.pao.laboratory05.playlist;
 /**
  * Exercise 1 — Playlist muzică
  *

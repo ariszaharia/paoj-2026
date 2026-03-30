@@ -1,4 +1,4 @@
-package com.pao.laboratory05;
+package com.pao.laboratory05.playlist;
 import java.util.Comparator;
 public class SongDurationComparator implements Comparator<Song> {
     @Override

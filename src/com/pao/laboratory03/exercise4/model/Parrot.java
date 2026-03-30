@@ -1,4 +1,6 @@
-package com.pao.laboratory02.exercise4.model;
+package com.pao.laboratory03.exercise4.model;
+
+import com.pao.laboratory03.exercise4.model.Animal;
 
 /**
  * ┌─────────────────────────────────────────────────────────────────────────┐

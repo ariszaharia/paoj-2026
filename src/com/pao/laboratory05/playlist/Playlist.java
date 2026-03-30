@@ -1,6 +1,4 @@
 package com.pao.laboratory05.playlist;
-import com.pao.laboratory05.Song;
-import com.pao.laboratory05.SongDurationComparator;
 import java.util.Arrays;
 
 public class Playlist {
