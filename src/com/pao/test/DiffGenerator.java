@@ -1,13 +1,14 @@
 package com.pao.test;
 
-import com.github.difflib.DiffUtils;
-import com.github.difflib.UnifiedDiffUtils;
-import com.github.difflib.patch.Patch;
-
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 class IncorrectExtensionException extends Exception {
     public IncorrectExtensionException(String expectedExtension, String filename) {
@@ -20,33 +21,47 @@ public class DiffGenerator {
         if (!filename.endsWith(".diff")) {
             throw new IncorrectExtensionException(".diff", filename);
         }
-        // 1. Define your Expected and Actual outputs (usually from your tests)
-        List<String> expectedOutput = expected.lines().toList();
 
-        List<String> actualOutput = actual.lines().toList();
+        List<String> expectedOutput = Arrays.asList(expected.split("\\R", -1));
+        List<String> actualOutput = Arrays.asList(actual.split("\\R", -1));
+        List<String> unifiedDiff = buildSimpleDiff(expectedOutput, actualOutput);
 
         try {
-            // 2. Compute the differences (The Patch)
-            Patch<String> patch = DiffUtils.diff(expectedOutput, actualOutput);
-
-            // 3. Convert the Patch into the standard Unified Diff format
-            // Arguments: original filename, revised filename, original text, the patch, context size (lines around diff)
-            List<String> unifiedDiff = UnifiedDiffUtils.generateUnifiedDiff(
-                    "expected_output.txt",
-                    "actual_output.txt",
-                    expectedOutput,
-                    patch,
-                    3 // context size
-            );
-
-            // 4. Save it to a .diff file
-            Path outputPath = Path.of(filename);
-            Files.write(outputPath, unifiedDiff);
-
+            Path outputPath = Paths.get(filename);
+            Files.write(outputPath, unifiedDiff, StandardCharsets.UTF_8);
             System.out.println("Diff file generated successfully at: " + outputPath.toAbsolutePath());
-
         } catch (IOException e) {
             System.err.println("Failed to write diff file: " + e.getMessage());
         }
+    }
+
+    private static List<String> buildSimpleDiff(List<String> expectedLines, List<String> actualLines) {
+        List<String> diff = new ArrayList<String>();
+        diff.add("--- expected_output.txt");
+        diff.add("+++ actual_output.txt");
+
+        int max = Math.max(expectedLines.size(), actualLines.size());
+        for (int i = 0; i < max; i++) {
+            String expected = i < expectedLines.size() ? expectedLines.get(i) : null;
+            String actual = i < actualLines.size() ? actualLines.get(i) : null;
+
+            if (Objects.equals(expected, actual)) {
+                continue;
+            }
+
+            diff.add("@@ line " + (i + 1) + " @@");
+            if (expected != null) {
+                diff.add("-" + expected);
+            }
+            if (actual != null) {
+                diff.add("+" + actual);
+            }
+        }
+
+        if (diff.size() == 2) {
+            diff.add("(no textual differences)");
+        }
+
+        return diff;
     }
 }

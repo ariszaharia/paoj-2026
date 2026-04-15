@@ -1,9 +1,5 @@
 package com.pao.laboratory07.exercise1;
 
-import com.pao.laboratory07.exercise1.exceptions.CannotCancelFinalOrderException;
-import com.pao.laboratory07.exercise1.exceptions.CannotRevertInitialOrderStateException;
-import com.pao.laboratory07.exercise1.exceptions.OrderIsAlreadyFinalException;
-
 import java.util.Scanner;
 
 public class Main {
@@ -18,31 +14,26 @@ public class Main {
         while (true) {
             OrderCommand orderCommand = OrderCommand.valueOf(scanner.next());
             switch (orderCommand) {
-                case next -> {
-                    try {
-                        order.nextState();
-                    } catch (OrderIsAlreadyFinalException e) {
+                case next:
+                    if (!order.nextState()) {
                         System.out.println("Order is already in a final state.");
                     }
-                }
-                case cancel -> {
-                    try {
-                        order.cancel();
-                    } catch (CannotCancelFinalOrderException e) {
+                    break;
+                case cancel:
+                    if (!order.cancel()) {
                         System.out.println("Cannot cancel a final state order.");
                     }
-                }
-                case undo -> {
-                    try {
-                        order.undoState();
-                    } catch (CannotRevertInitialOrderStateException e) {
+                    break;
+                case undo:
+                    if (!order.undoState()) {
                         System.out.println("Cannot undo the initial order state.");
                     }
-                }
-                case QUIT -> {
+                    break;
+                case QUIT:
                     System.out.println("User quit the program.");
                     return;
-                }
+                default:
+                    break;
             }
         }
     }

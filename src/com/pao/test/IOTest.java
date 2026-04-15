@@ -3,11 +3,6 @@ package com.pao.test;
 import java.io.*;
 import java.nio.file.*;
 import java.util.*;
-import java.util.stream.Collectors;
-
-import com.github.difflib.DiffUtils;
-import com.github.difflib.UnifiedDiffUtils;
-import com.github.difflib.patch.Patch;
 
 /**
  * Utilitar pentru testarea automată a exercițiilor I/O.
@@ -314,13 +309,11 @@ public class IOTest {
         }
     }
 
-    // Print and save unified diff using java-diff-utils
+    // Print and save a simple line-by-line diff (no external libraries required)
     private static void printUnifiedDiff(String expected, String actual, File partDir, String base) {
         List<String> expectedLines = Arrays.asList(expected.split("\n", -1));
         List<String> actualLines = Arrays.asList(actual.split("\n", -1));
-        Patch<String> patch = DiffUtils.diff(expectedLines, actualLines);
-        List<String> unifiedDiff = UnifiedDiffUtils.generateUnifiedDiff(
-                "expected", "actual", expectedLines, patch, 3);
+        List<String> unifiedDiff = buildSimpleDiff(expectedLines, actualLines);
         // Print to console
         System.out.println("  ╔═══ Diff ═══════════════");
         System.out.println("  ║");
@@ -342,5 +335,35 @@ public class IOTest {
         } catch (IOException e) {
             System.out.println("    [Eroare la scrierea fișierului diff: " + diffFile.getAbsolutePath() + "]");
         }
+    }
+
+    private static List<String> buildSimpleDiff(List<String> expectedLines, List<String> actualLines) {
+        List<String> diff = new ArrayList<>();
+        diff.add("--- expected");
+        diff.add("+++ actual");
+
+        int max = Math.max(expectedLines.size(), actualLines.size());
+        for (int i = 0; i < max; i++) {
+            String expected = i < expectedLines.size() ? expectedLines.get(i) : null;
+            String actual = i < actualLines.size() ? actualLines.get(i) : null;
+
+            if (Objects.equals(expected, actual)) {
+                continue;
+            }
+
+            diff.add("@@ line " + (i + 1) + " @@");
+            if (expected != null) {
+                diff.add("-" + expected);
+            }
+            if (actual != null) {
+                diff.add("+" + actual);
+            }
+        }
+
+        if (diff.size() == 2) {
+            diff.add("(no textual differences)");
+        }
+
+        return diff;
     }
 }
