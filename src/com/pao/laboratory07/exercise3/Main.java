@@ -108,9 +108,7 @@ public class Main {
     private static void afiseazaFilter(List<Comanda> comenzi, double threshold) {
         System.out.printf("--- FILTER (>= %.2f) ---%n", threshold);
 
-        List<Comanda> filtrate = comenzi.stream()
-                .filter(c -> c.pretFinal() >= threshold)
-                .collect(Collectors.toList());
+        List<Comanda> filtrate = comenzi.stream().filter(c -> c.pretFinal() >= threshold).collect(Collectors.toList());
 
         if (filtrate.isEmpty()) {
             System.out.println("Nicio comanda gasita.");
@@ -125,9 +123,7 @@ public class Main {
     private static void afiseazaSort(List<Comanda> comenzi) {
         System.out.println("--- SORT (by client, then by pret) ---");
 
-        List<Comanda> sortate = comenzi.stream()
-                .sorted(Comparator.comparing(Comanda::client).thenComparing(Comanda::pretFinal))
-                .collect(Collectors.toList());
+        List<Comanda> sortate = comenzi.stream().sorted(Comparator.comparing(Comanda::client).thenComparing(Comanda::pretFinal)).collect(Collectors.toList());
 
         for (Comanda comanda : sortate) {
             System.out.println(comanda.descriereScurta());
