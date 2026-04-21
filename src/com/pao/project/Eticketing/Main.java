@@ -101,30 +101,58 @@ public class Main {
                     break;
 
                 case "2":
-                    if(clientLogat == null){
-                    try {
-                        System.out.print("Username: ");
-                        String usernameLogin = scanner.nextLine().trim();
-                        System.out.print("Parola: ");
-                        String parolaLogin = scanner.nextLine().trim();
+                    if (clientLogat == null) {
+                        try {
+                            System.out.print("Username: ");
+                            String usernameLogin = scanner.nextLine().trim();
+                            System.out.print("Parola: ");
+                            String parolaLogin = scanner.nextLine().trim();
 
-                        Utilizator user = authService.login(usernameLogin, parolaLogin);
-                        if (user instanceof Client) {
-                            clientLogat = (Client) user;
-                            comandaCurenta = clientLogat.creeazaComandaAutomata();
-                            System.out.println("Login reusit. Salut, " + clientLogat.getUsername() + "!");
-                            System.out.println("Sold: " + clientLogat.getBalance() + " lei. Tip client: " + clientLogat.getTipClient());
-                        } else if (user != null) {
-                            System.out.println("Utilizator logat, dar nu este client. Comenzile sunt disponibile doar clientilor.");
-                            authService.logout(user);
-                        } else {
-                            System.out.println("Credentiale invalide.");
+                            Utilizator user = authService.login(usernameLogin, parolaLogin);
+                            if (user instanceof Client) {
+                                clientLogat = (Client) user;
+                                comandaCurenta = clientLogat.creeazaComandaAutomata();
+                                System.out.println("Login reusit. Salut, " + clientLogat.getUsername() + "!");
+                                System.out.println("Sold: " + clientLogat.getBalance() + " lei. Tip client: " + clientLogat.getTipClient());
+                            } else if (user != null) {
+                                System.out.println("Utilizator logat, dar nu este client. Comenzile sunt disponibile doar clientilor.");
+                                authService.logout(user);
+                            } else {
+                                System.out.println("Credentiale invalide.");
+                            }
+                        } catch (Exception e) {
+                            System.out.println("Eroare la login: " + e.getMessage());
                         }
-                    } catch (Exception e) {
-                        System.out.println("Eroare la login: " + e.getMessage());
-                    }
                     } else {
                         System.out.println("Deja esti logat ca " + clientLogat.getUsername() + ". Fa logout pentru a te loga cu alt cont.");
+                    }
+                    break;
+
+                case "3":
+                    try {
+                        authService.logout(clientLogat);
+                        comandaCurenta = null;
+                        System.out.println("Logout reusit.");
+                    } catch (Exception e) {
+                        System.out.println("Eroare la logout: " + e.getMessage());
+                    }
+                    break;
+
+                case "4":
+                    if (clientLogat == null) {
+                        System.out.println("Trebuie sa fii logat ca client pentru a-ti sterge contul.");
+                        break;
+                    }
+                    System.out.println("Esti sigur(y/n)?: ");
+                    String alegere = scanner.nextLine().toUpperCase().trim();
+                    if (alegere.equals("Y")) {
+                        try {
+                            authService.logout(clientLogat);
+                            authService.deleteUser(clientLogat);
+                            System.out.println("Cont sters cu succes.");
+                        } catch (Exception e) {
+                            System.out.println("Eroare la stergere cont: " + e.getMessage());
+                        }
                     }
                     break;
 
@@ -192,6 +220,21 @@ public class Main {
                     }
                     break;
 
+                case "8":
+                    try {
+                        System.out.print("Descriere bilet: ");
+                        String descriere = scanner.nextLine().trim();
+                        Bilet bilet = biletService.findByDescriere(descriere);
+                        if (bilet == null) {
+                            System.out.println("Bilet negasit.");
+                        } else {
+                            System.out.println("Bilet gasit: " + bilet);
+                        }
+                    } catch (Exception e) {
+                        System.out.println("Eroare la cautare bilet: " + e.getMessage());
+                    }
+                    break;
+
                 case "9":
                     if (clientLogat == null || comandaCurenta == null) {
                         System.out.println("Trebuie sa fii logat ca client ca sa adaugi bilete.");
@@ -239,11 +282,19 @@ public class Main {
                         }
 
                         Bilet biletSelectat = bileteFiltrate.get(indexBilet);
-
                         comandaCurenta.adaugaBilet(biletSelectat);
                         System.out.println("Bilet adaugat. Numar bilete in comanda: " + comandaCurenta.getNumarBilete());
                     } catch (Exception e) {
                         System.out.println("Eroare la adaugare bilet: " + e.getMessage());
+                    }
+                    break;
+
+                case "10":
+                    if (comandaCurenta == null) {
+                        System.out.println("Nu exista comanda activa.");
+                    } else {
+                        System.out.println("Comanda curenta: " + comandaCurenta);
+                        System.out.println("Total de plata: " + comandaCurenta.calculeazaPretTotal() + " lei");
                     }
                     break;
 
@@ -260,6 +311,22 @@ public class Main {
                         System.out.println("Depunere reusita. Sold curent: " + clientLogat.getBalance());
                     } catch (Exception e) {
                         System.out.println("Eroare la depunere: " + e.getMessage());
+                    }
+                    break;
+
+                case "12":
+                    if (clientLogat == null) {
+                        System.out.println("Trebuie sa fii logat ca client pentru a retrage bani.");
+                        break;
+                    }
+
+                    try {
+                        System.out.print("Suma de retras: ");
+                        double sumaRetrasa = Double.parseDouble(scanner.nextLine().trim());
+                        clientLogat.withdraw(sumaRetrasa);
+                        System.out.println("Retragere reusita. Sold curent: " + clientLogat.getBalance());
+                    } catch (Exception e) {
+                        System.out.println("Eroare la retragere: " + e.getMessage());
                     }
                     break;
 
@@ -282,15 +349,6 @@ public class Main {
                         comandaCurenta = clientLogat.creeazaComandaAutomata();
                     } catch (Exception e) {
                         System.out.println("Eroare la plata: " + e.getMessage());
-                    }
-                    break;
-
-                case "10":
-                    if (comandaCurenta == null) {
-                        System.out.println("Nu exista comanda activa.");
-                    } else {
-                        System.out.println("Comanda curenta: " + comandaCurenta);
-                        System.out.println("Total de plata: " + comandaCurenta.calculeazaPretTotal() + " lei");
                     }
                     break;
 
@@ -336,31 +394,6 @@ public class Main {
                     }
                     break;
 
-                case "3":
-                    try {
-                        authService.logout(clientLogat);
-                        comandaCurenta = null;
-                        System.out.println("Logout reusit.");
-                    } catch (Exception e) {
-                        System.out.println("Eroare la logout: " + e.getMessage());
-                    }
-                    break;
-
-                case "8":
-                    try {
-                        System.out.print("Descriere bilet: ");
-                        String descriere = scanner.nextLine().trim();
-                        Bilet bilet = biletService.findByDescriere(descriere);
-                        if (bilet == null) {
-                            System.out.println("Bilet negasit.");
-                        } else {
-                            System.out.println("Bilet gasit: " + bilet);
-                        }
-                    } catch (Exception e) {
-                        System.out.println("Eroare la cautare bilet: " + e.getMessage());
-                    }
-                    break;
-
                 case "16":
                     try {
                         System.out.print("Denumire eveniment de sters: ");
@@ -393,45 +426,11 @@ public class Main {
                     }
                     break;
 
-                case "4":
-                    if (clientLogat == null){
-                        System.out.println("Trebuie sa fii logat ca client pentru a-ti sterge contul.");
-                        break;
-                    }
-                    System.out.println("Esti sigur(y/n)?: ");
-                    String alegere = scanner.nextLine().toUpperCase().trim();
-                    if (alegere.equals("Y")) {
-                        try {
-                            authService.logout(clientLogat);
-                            authService.deleteUser(clientLogat);
-                            System.out.println("Cont sters cu succes.");
-                        } catch (Exception e) {
-                            System.out.println("Eroare la stergere cont: " + e.getMessage());
-                        }
-                    }
-                    break;
-                
-                case "12":
-                    if (clientLogat == null) {
-                        System.out.println("Trebuie sa fii logat ca client pentru a retrage bani.");
-                        break;
-                    }
-
-                    try {
-                        System.out.print("Suma de retras: ");
-                        double sumaRetrasa = Double.parseDouble(scanner.nextLine().trim());
-                        clientLogat.withdraw(sumaRetrasa);
-                        System.out.println("Retragere reusita. Sold curent: " + clientLogat.getBalance());
-                    } catch (Exception e) {
-                        System.out.println("Eroare la retragere: " + e.getMessage());
-                    }
-                    break;
-                    
                 case "0":
                     System.out.println("Aplicatia se inchide.");
                     running = false;
                     break;
-                    
+
                 default:
                     System.out.println("Optiune invalida.");
                     break;

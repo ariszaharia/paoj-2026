@@ -54,6 +54,15 @@ public class ComandaService {
         return true;
     }
 
+    public Comanda findById(int id) {
+        for (Comanda c : comenzi) {
+            if (c.getId() == id) {
+                return c;
+            }
+        }
+        return null;
+    }
+
     public List<Comanda> findComenziSortateDupaTotal() {
         List<Comanda> rezultat = new ArrayList<>(comenzi);
         rezultat.sort(Comparator.comparingDouble(Comanda::calculeazaPretTotal));
