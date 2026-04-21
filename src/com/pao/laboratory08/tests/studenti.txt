@@ -1,7 +1,4 @@
-Ana,19,București,Calea Victoriei
-Mihai,22,Cluj,Strada Mărășești
-Elena,20,Iași,Bulevardul Independenței
-Ion,17,Timișoara,Strada Florilor
-Maria,23,Brașov,Strada Republicii
-Andrei,21,Constanța,Bulevardul Mamaia
-
+Student{nume='Mihai', varsta=22, adresa=Adresa{oras='Cluj', strada='Strada Mărășești'}}
+Student{nume='Elena', varsta=20, adresa=Adresa{oras='Iași', strada='Bulevardul Independenței'}}
+Student{nume='Maria', varsta=23, adresa=Adresa{oras='Brașov', strada='Strada Republicii'}}
+Student{nume='Andrei', varsta=21, adresa=Adresa{oras='Constanța', strada='Bulevardul Mamaia'}}
