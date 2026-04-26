@@ -5,9 +5,9 @@ import java.util.Objects;
 public class Locatie {
     private final String denumire;
     private final int capacitate;
-    private final String oras;
+    private String oras;
 
-    public Locatie(String denumire, String oras,  int capacitate) {
+    public Locatie(String denumire, String oras, int capacitate) {
         if (denumire == null || denumire.trim().isEmpty()) {
             throw new IllegalArgumentException("Denumirea locatiei este invalida");
         }
@@ -16,8 +16,8 @@ public class Locatie {
         }
 
         this.denumire = denumire;
-        this.oras = oras;
         this.capacitate = capacitate;
+        this.oras = oras;
     }
 
     public String getDenumire() {
@@ -26,6 +26,10 @@ public class Locatie {
 
     public int getCapacitate() {
         return capacitate;
+    }
+
+    public String getOras() {
+        return oras;
     }
 
     @Override

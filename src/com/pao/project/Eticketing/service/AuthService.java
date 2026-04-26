@@ -1,26 +1,26 @@
 package com.pao.project.Eticketing.service;
 
+import com.pao.project.Eticketing.exception.StergereUtilizator;
 import com.pao.project.Eticketing.exception.UserDoesNotExistException;
 import com.pao.project.Eticketing.model.user.Client;
+import com.pao.project.Eticketing.model.user.Organizator;
 import com.pao.project.Eticketing.model.user.Utilizator;
-import com.pao.project.Eticketing.repository.InMemoryUserRepository;
-import com.pao.project.Eticketing.repository.UserRepository;
 
-import java.util.Optional;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AuthService {
     private static AuthService instance;
 
-    private final UserRepository userRepository;
+    private final Map<String, Utilizator> usersByUsername = new HashMap<>();
     private Utilizator currentUser;
 
-    private AuthService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    private AuthService() {
     }
 
     public static AuthService getInstance() {
         if (instance == null) {
-            instance = new AuthService(new InMemoryUserRepository());
+            instance = new AuthService();
         }
         return instance;
     }
@@ -29,11 +29,11 @@ public class AuthService {
         if (utilizator == null) {
             throw new IllegalArgumentException("Utilizatorul nu poate fi null");
         }
-        if (userRepository.existsByUsername(utilizator.getUsername())) {
+        if (usersByUsername.containsKey(utilizator.getUsername())) {
             throw new IllegalArgumentException("Username deja existent");
         }
 
-        userRepository.save(utilizator);
+        usersByUsername.put(utilizator.getUsername(), utilizator);
     }
 
     public Utilizator login(String username, String password) {
@@ -41,10 +41,10 @@ public class AuthService {
             throw new IllegalArgumentException("Username/parola invalide");
         }
 
-        Optional<Utilizator> utilizator = userRepository.findByUsername(username);
-        if (utilizator.isPresent() && utilizator.get().hasPassword(password)) {
-            currentUser = utilizator.get();
-            return utilizator.get();
+        Utilizator utilizator = usersByUsername.get(username);
+        if (utilizator != null && utilizator.hasPassword(password)) {
+            currentUser = utilizator;
+            return utilizator;
         }
 
         return null;
@@ -63,10 +63,16 @@ public class AuthService {
         if (utilizator == null) {
             throw new IllegalArgumentException("Utilizatorul nu poate fi null");
         }
-        if(!userRepository.existsByUsername(utilizator.getUsername())){
+
+        Utilizator existent = usersByUsername.get(utilizator.getUsername());
+        if (existent == null) {
             throw new UserDoesNotExistException("Nu exista utilizatorul");
         }
-        userRepository.deleteByUsername(utilizator.getUsername());
+        if (existent.getBalance() != 0) {
+            throw new StergereUtilizator("Nu se poate sterge utilizatorul deoarece are un sold diferit de 0");
+        }
+
+        usersByUsername.remove(utilizator.getUsername());
         if (currentUser != null && currentUser.equals(utilizator)) {
             currentUser = null;
         }
@@ -76,9 +82,24 @@ public class AuthService {
         return currentUser;
     }
 
+    public java.util.Optional<Utilizator> findByUsername(String username) {
+        return java.util.Optional.ofNullable(usersByUsername.get(username));
+    }
+
+    public java.util.Collection<Utilizator> getAllUsers() {
+        return java.util.Collections.unmodifiableCollection(usersByUsername.values());
+    }
+
     public Client getLoggedClient() {
         if (currentUser instanceof Client client) {
             return client;
+        }
+        return null;
+    }
+
+    public Organizator getLoggedOrganizator() {
+        if (currentUser instanceof Organizator organizator) {
+            return organizator;
         }
         return null;
     }

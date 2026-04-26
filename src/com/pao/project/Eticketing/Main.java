@@ -1,5 +1,6 @@
 package com.pao.project.Eticketing;
 
+import com.pao.project.Eticketing.model.order.Tranzactie;
 import com.pao.project.Eticketing.model.event.Concert;
 import com.pao.project.Eticketing.model.event.Eveniment;
 import com.pao.project.Eticketing.model.event.Locatie;
@@ -7,6 +8,7 @@ import com.pao.project.Eticketing.model.event.Meci;
 import com.pao.project.Eticketing.model.order.Comanda;
 import com.pao.project.Eticketing.model.ticket.Bilet;
 import com.pao.project.Eticketing.model.user.Client;
+import com.pao.project.Eticketing.model.user.Organizator;
 import com.pao.project.Eticketing.model.user.TipClient;
 import com.pao.project.Eticketing.model.user.Utilizator;
 import com.pao.project.Eticketing.service.AuthService;
@@ -14,6 +16,7 @@ import com.pao.project.Eticketing.service.BiletService;
 import com.pao.project.Eticketing.service.ComandaService;
 import com.pao.project.Eticketing.service.EvenimentService;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Scanner;
 
@@ -27,12 +30,15 @@ public class Main {
 
         Comanda comandaCurenta = null;
 
+        Organizator organizatorAdmin = new Organizator("admin", "admin123");
+        authService.register(organizatorAdmin);
+
         Locatie l1 = new Locatie("Sala Palatului", "Bucuresti", 1000);
         Locatie l2 = new Locatie("Arena Nationala", "Bucuresti", 50000);
 
-        Concert c1 = new Concert("Concert rock", "24.02.2026", 60, l1, "Beatles", "Rock");
-        Meci m1 = new Meci("Meci fotbal", "25.02.2026", 90, l2, "FCSB", "Dinamo");
-        
+        Concert c1 = new Concert("Concert rock", "24.02.2026", 60, l1, "Beatles", "Rock", 500);
+        Meci m1 = new Meci("Meci fotbal", "25.02.2026", 90, l2, "FCSB", "Dinamo", 20000);
+
         Bilet b1 = new Bilet(200, m1, "VIP");
         Bilet b2 = new Bilet(50, m1, "Peluza");
         Bilet b3 = new Bilet(180, c1, "VIP");
@@ -52,6 +58,7 @@ public class Main {
         boolean running = true;
         while (running) {
             Client clientLogat = authService.getLoggedClient();
+            Organizator organizatorLogat = authService.getLoggedOrganizator();
             if (clientLogat == null) {
                 comandaCurenta = null;
             }
@@ -78,6 +85,9 @@ public class Main {
             System.out.println("15. Sterge comanda platita dupa index");
             System.out.println("16. Sterge eveniment dupa denumire");
             System.out.println("17. Sterge bilet dupa descriere");
+            System.out.println("18. Afiseaza toti utilizatorii inregistrati");
+            System.out.println("19. Afiseaza istoricul tranzactiilor");
+            System.out.println("20. Cauta utilizator dupa username");
             System.out.println("0. Iesire");
             System.out.print("Introduce optiunea: ");
             String opt = scanner.nextLine().trim();
@@ -101,7 +111,7 @@ public class Main {
                     break;
 
                 case "2":
-                    if (clientLogat == null) {
+                    if (clientLogat == null && organizatorLogat == null) {
                         try {
                             System.out.print("Username: ");
                             String usernameLogin = scanner.nextLine().trim();
@@ -109,14 +119,15 @@ public class Main {
                             String parolaLogin = scanner.nextLine().trim();
 
                             Utilizator user = authService.login(usernameLogin, parolaLogin);
-                            if (user instanceof Client) {
-                                clientLogat = (Client) user;
+                            if (user instanceof Client c) {
+                                clientLogat = c;
                                 comandaCurenta = clientLogat.creeazaComandaAutomata();
                                 System.out.println("Login reusit. Salut, " + clientLogat.getUsername() + "!");
                                 System.out.println("Sold: " + clientLogat.getBalance() + " lei. Tip client: " + clientLogat.getTipClient());
-                            } else if (user != null) {
-                                System.out.println("Utilizator logat, dar nu este client. Comenzile sunt disponibile doar clientilor.");
-                                authService.logout(user);
+                            } else if (user instanceof Organizator o) {
+                                organizatorLogat = o;
+                                System.out.println("Login reusit. Salut, " + organizatorLogat.getUsername() + "! (Organizator)");
+                                System.out.println("Ai acces la sectiunea de administrare.");
                             } else {
                                 System.out.println("Credentiale invalide.");
                             }
@@ -124,13 +135,19 @@ public class Main {
                             System.out.println("Eroare la login: " + e.getMessage());
                         }
                     } else {
-                        System.out.println("Deja esti logat ca " + clientLogat.getUsername() + ". Fa logout pentru a te loga cu alt cont.");
+                        String cine = clientLogat != null ? clientLogat.getUsername() : organizatorLogat.getUsername();
+                        System.out.println("Deja esti logat ca " + cine + ". Fa logout pentru a te loga cu alt cont.");
                     }
                     break;
 
                 case "3":
                     try {
-                        authService.logout(clientLogat);
+                        Utilizator deLogat = clientLogat != null ? clientLogat : organizatorLogat;
+                        if (deLogat == null) {
+                            System.out.println("Nu esti logat.");
+                            break;
+                        }
+                        authService.logout(deLogat);
                         comandaCurenta = null;
                         System.out.println("Logout reusit.");
                     } catch (Exception e) {
@@ -341,11 +358,10 @@ public class Main {
                     }
 
                     try {
-                        double total = comandaCurenta.calculeazaPretTotal();
-                        clientLogat.pay(comandaCurenta);
-                        comandaService.addComanda(comandaCurenta);
-                        System.out.println("Plata reusita. Total platit: " + total);
-                        System.out.println("Sold ramas: " + clientLogat.getBalance());
+                        Tranzactie t = comandaService.platesteComanda(clientLogat, comandaCurenta);
+                        System.out.println("Plata reusita. Total platit: " + t.getSuma() + " lei");
+                        System.out.println("Sold ramas: " + clientLogat.getBalance() + " lei");
+                        System.out.println("Tranzactie inregistrata: " + t);
                         comandaCurenta = clientLogat.creeazaComandaAutomata();
                     } catch (Exception e) {
                         System.out.println("Eroare la plata: " + e.getMessage());
@@ -353,6 +369,10 @@ public class Main {
                     break;
 
                 case "14":
+                    if (organizatorLogat == null) {
+                        System.out.println("Aceasta optiune este disponibila doar organizatorilor.");
+                        break;
+                    }
                     try {
                         List<Comanda> comenziSortate = comandaService.findComenziSortateDupaTotal();
                         if (comenziSortate.isEmpty()) {
@@ -369,6 +389,10 @@ public class Main {
                     break;
 
                 case "15":
+                    if (organizatorLogat == null) {
+                        System.out.println("Aceasta optiune este disponibila doar organizatorilor.");
+                        break;
+                    }
                     try {
                         List<Comanda> toateComenzile = comandaService.findAllComenzi();
                         if (toateComenzile.isEmpty()) {
@@ -395,6 +419,10 @@ public class Main {
                     break;
 
                 case "16":
+                    if (organizatorLogat == null) {
+                        System.out.println("Aceasta optiune este disponibila doar organizatorilor.");
+                        break;
+                    }
                     try {
                         System.out.print("Denumire eveniment de sters: ");
                         String denumire = scanner.nextLine().trim();
@@ -411,6 +439,10 @@ public class Main {
                     break;
 
                 case "17":
+                    if (organizatorLogat == null) {
+                        System.out.println("Aceasta optiune este disponibila doar organizatorilor.");
+                        break;
+                    }
                     try {
                         System.out.print("Descriere bilet de sters: ");
                         String descriere = scanner.nextLine().trim();
@@ -426,6 +458,56 @@ public class Main {
                     }
                     break;
 
+                case "18":
+                    if (organizatorLogat == null) {
+                        System.out.println("Aceasta optiune este disponibila doar organizatorilor.");
+                        break;
+                    }
+                    Collection<Utilizator> totiUtilizatorii = authService.getAllUsers();
+                    if (totiUtilizatorii.isEmpty()) {
+                        System.out.println("Nu exista utilizatori inregistrati.");
+                    } else {
+                        System.out.println("Utilizatori inregistrati:");
+                        for (Utilizator u : totiUtilizatorii) {
+                            String tip = (u instanceof Client c) ? "Client (" + c.getTipClient() + ")" : "Organizator";
+                            System.out.println("  - " + u.getUsername() + " [" + tip + "] | sold: " + u.getBalance() + " lei");
+                        }
+                    }
+                    break;
+
+                case "19":
+                    if (organizatorLogat == null) {
+                        System.out.println("Aceasta optiune este disponibila doar organizatorilor.");
+                        break;
+                    }
+                    List<Tranzactie> tranzactii = comandaService.getTranzactii();
+                    if (tranzactii.isEmpty()) {
+                        System.out.println("Nu exista tranzactii inregistrate.");
+                    } else {
+                        System.out.println("Istoric tranzactii:");
+                        for (int i = 0; i < tranzactii.size(); i++) {
+                            System.out.println((i + 1) + ". " + tranzactii.get(i));
+                        }
+                    }
+                    break;
+
+                case "20":
+                    if (organizatorLogat == null) {
+                        System.out.println("Aceasta optiune este disponibila doar organizatorilor.");
+                        break;
+                    }
+                    try {
+                        System.out.print("Username de cautat: ");
+                        String usernameCautat = scanner.nextLine().trim();
+                        authService.findByUsername(usernameCautat).ifPresentOrElse(
+                            u -> System.out.println("Utilizator gasit: " + u),
+                            () -> System.out.println("Utilizatorul nu a fost gasit.")
+                        );
+                    } catch (Exception e) {
+                        System.out.println("Eroare la cautare utilizator: " + e.getMessage());
+                    }
+                    break;
+
                 case "0":
                     System.out.println("Aplicatia se inchide.");
                     running = false;
@@ -436,6 +518,5 @@ public class Main {
                     break;
             }
         }
-
     }
 }

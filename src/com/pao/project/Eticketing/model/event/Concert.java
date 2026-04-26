@@ -4,8 +4,8 @@ public class Concert extends Eveniment {
     private final String artist;
     private final String genMuzical;
 
-    public Concert(String denumire, String data, int durataMinute, Locatie locatie, String artist, String genMuzical) {
-        super(denumire, data, durataMinute, locatie);
+    public Concert(String denumire, String data, int durataMinute, Locatie locatie, String artist, String genMuzical, int nr_bilete) {
+        super(denumire, data, durataMinute, locatie, nr_bilete);
         if (artist == null || artist.trim().isEmpty()) {
             throw new IllegalArgumentException("Artist invalid");
         }

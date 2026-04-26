@@ -7,8 +7,9 @@ public abstract class Eveniment implements Comparable<Eveniment> {
     private final String data;
     private final int durataMinute;
     private final Locatie locatie;
+    private int av_tickets;
 
-    protected Eveniment(String denumire, String data, int durataMinute, Locatie locatie) {
+    protected Eveniment(String denumire, String data, int durataMinute, Locatie locatie, int bil) {
         if (denumire == null || denumire.trim().isEmpty()) {
             throw new IllegalArgumentException("Denumirea evenimentului este invalida");
         }
@@ -26,6 +27,7 @@ public abstract class Eveniment implements Comparable<Eveniment> {
         this.data = data;
         this.durataMinute = durataMinute;
         this.locatie = locatie;
+        this.av_tickets = bil;
     }
 
     public String getDenumire() {
@@ -42,6 +44,10 @@ public abstract class Eveniment implements Comparable<Eveniment> {
 
     public Locatie getLocatie() {
         return locatie;
+    }
+
+    public int getAvTickets() {
+        return av_tickets;
     }
 
     @Override

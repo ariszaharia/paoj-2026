@@ -4,8 +4,8 @@ public class Meci extends Eveniment{
     private final String echipaGazda;
     private final String echipaOaspete;
 
-    public Meci(String denumire, String data, int durataMinute, Locatie locatie, String echipaGazda, String echipaOaspete) {
-        super(denumire, data, durataMinute, locatie);
+    public Meci(String denumire, String data, int durataMinute, Locatie locatie, String echipaGazda, String echipaOaspete, int nr_bilete) {
+        super(denumire, data, durataMinute, locatie, nr_bilete);
         if (echipaGazda == null || echipaGazda.trim().isEmpty()) {
             throw new IllegalArgumentException("Echipa gazda invalida");
         }

@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm \"C:\\\\Users\\\\Aris\\\\IdeaProjects\\\\lab3\\\\paoj-2026\\\\src\\\\com\\\\pao\\\\project\\\\Eticketing\\\\repository\\\\UserRepository.java\" \"C:\\\\Users\\\\Aris\\\\IdeaProjects\\\\lab3\\\\paoj-2026\\\\src\\\\com\\\\pao\\\\project\\\\Eticketing\\\\repository\\\\InMemoryUserRepository.java\")",
+      "Bash(rmdir \"C:\\\\Users\\\\Aris\\\\IdeaProjects\\\\lab3\\\\paoj-2026\\\\src\\\\com\\\\pao\\\\project\\\\Eticketing\\\\repository\")",
+      "Bash(git show *)",
+      "Bash(python3 *)"
+    ]
+  }
+}

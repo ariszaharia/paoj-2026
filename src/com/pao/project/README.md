@@ -29,7 +29,7 @@ git push origin proiect-etapa2
 ```
 
 ---
-
+read
 ## Condiții generale de punctare
 
 - ✅ Proiectul **compilează** fără erori
