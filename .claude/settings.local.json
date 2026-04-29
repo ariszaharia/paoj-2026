@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C /c/Users/Aris/IdeaProjects/lab3/paoj-2026 branch -a)",
+      "Bash(git -C /c/Users/Aris/IdeaProjects/lab3/paoj-2026 show proiecte-etapa1:src/com/pao/project/Eticketing/Main.java)"
+    ]
+  }
+}
