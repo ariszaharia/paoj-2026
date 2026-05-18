@@ -7,6 +7,9 @@ import java.util.List;
 
 public class ComandaNormala extends Comanda {
     @Override
+    public String getTipComanda() { return "NORMALA"; }
+
+    @Override
     public double calculeazaPretTotal(){
         List<Bilet> bilete = getBilete();
         double suma = 0;

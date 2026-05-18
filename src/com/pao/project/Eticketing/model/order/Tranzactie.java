@@ -6,7 +6,7 @@ import java.util.Objects;
 public final class Tranzactie {
     private static int nextId = 1;
 
-    private final int id;
+    private int id;
     private final String clientUsername;
     private final int comandaId;
     private final double suma;
@@ -27,6 +27,7 @@ public final class Tranzactie {
     }
 
     public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
     public String getClientUsername() { return clientUsername; }
     public int getComandaId() { return comandaId; }
     public double getSuma() { return suma; }

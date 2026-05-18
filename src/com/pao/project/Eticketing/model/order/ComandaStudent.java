@@ -9,6 +9,9 @@ import java.util.Objects;
 
 public class ComandaStudent extends Comanda {
     @Override
+    public String getTipComanda() { return "STUDENT"; }
+
+    @Override
     public double calculeazaPretTotal(){
         List<Bilet> bilete = getBilete();
         double suma = 0;

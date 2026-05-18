@@ -3,6 +3,7 @@ package com.pao.project.Eticketing.model.event;
 import java.util.Objects;
 
 public abstract class Eveniment implements Comparable<Eveniment> {
+    private int id;
     private final String denumire;
     private final String data;
     private final int durataMinute;
@@ -30,6 +31,9 @@ public abstract class Eveniment implements Comparable<Eveniment> {
         this.av_tickets = bil;
     }
 
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
     public String getDenumire() {
         return denumire;
     }
@@ -46,9 +50,8 @@ public abstract class Eveniment implements Comparable<Eveniment> {
         return locatie;
     }
 
-    public int getAvTickets() {
-        return av_tickets;
-    }
+    public int getAvTickets() { return av_tickets; }
+    public void setAvTickets(int av_tickets) { this.av_tickets = av_tickets; }
 
     @Override
     public int compareTo(Eveniment altEveniment) {

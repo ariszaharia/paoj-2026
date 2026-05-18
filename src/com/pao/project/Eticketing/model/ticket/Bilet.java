@@ -6,6 +6,8 @@ import com.pao.project.Eticketing.model.event.Eveniment;
 import java.util.Objects;
 
 public class Bilet {
+    private int id;
+    private int comandaId;
     private final double pret;
     private final Eveniment eveniment;
     private final String descriere;
@@ -23,6 +25,11 @@ public class Bilet {
         this.descriere = descriere;
     }
 
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+    public int getComandaId() { return comandaId; }
+    public void setComandaId(int comandaId) { this.comandaId = comandaId; }
+
     public double getPret() {
         return pret;
     }
@@ -34,6 +41,8 @@ public class Bilet {
     public String getDescriere() {
         return descriere;
     }
+
+
 
     @Override
     public String toString() {

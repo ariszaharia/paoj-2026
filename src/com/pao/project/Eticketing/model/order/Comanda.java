@@ -10,16 +10,19 @@ import java.util.List;
 public abstract class Comanda {
 
     private static int nextId = 1;
-    private final int id;
+    private int id;
+    private int clientId;
     private final List<Bilet> bilete = new ArrayList<>();
 
     protected Comanda() {
         this.id = nextId++;
     }
 
-    public int getId() {
-        return id;
-    }
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+    public int getClientId() { return clientId; }
+    public void setClientId(int clientId) { this.clientId = clientId; }
+    public abstract String getTipComanda();
 
     public void adaugaBilet(Bilet b) {
         if (b == null) {

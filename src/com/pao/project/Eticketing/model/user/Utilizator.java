@@ -7,6 +7,7 @@ import com.pao.project.Eticketing.model.order.Comanda;
 import java.util.Objects;
 
 public abstract class Utilizator {
+    private int id;
     private final String username;
     private final String password;
     private double balance;
@@ -58,9 +59,12 @@ public abstract class Utilizator {
 
     public abstract boolean pay(Comanda comanda);
 
-    public double getBalance() {
-        return balance;
-    }
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public double getBalance() { return balance; }
+    public void setBalance(double balance) { this.balance = balance; }
+    public String getPassword() { return password; }
 
     public String getUsername() {
         return username;

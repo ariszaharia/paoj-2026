@@ -3,6 +3,7 @@ package com.pao.project.Eticketing.model.event;
 import java.util.Objects;
 
 public class Locatie {
+    private int id;
     private final String denumire;
     private final int capacitate;
     private String oras;
@@ -19,6 +20,9 @@ public class Locatie {
         this.capacitate = capacitate;
         this.oras = oras;
     }
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
 
     public String getDenumire() {
         return denumire;
