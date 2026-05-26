@@ -121,3 +121,4 @@ La pornire, sistemul inregistreaza automat un cont de organizator cu credentiale
 - **Parola:** `admin123`
 
 Si doua evenimente cu bilete predefinite (Concert Rock, Meci fotbal).
+

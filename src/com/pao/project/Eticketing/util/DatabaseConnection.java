@@ -9,9 +9,10 @@ import java.util.Properties;
 
 public class DatabaseConnection {
     private static DatabaseConnection instance;
-    private final
-    Connection connection;
-
+    private final String url;
+    private final String user;
+    private final String password;
+    private Connection reusableConnection;
     private DatabaseConnection() {
         try {
             Properties props = new Properties();
@@ -21,12 +22,11 @@ public class DatabaseConnection {
                 }
                 props.load(in);
             }
-            String url = props.getProperty("db.url");
-            String user = props.getProperty("db.user");
-            String password = props.getProperty("db.password");
-            this.connection = DriverManager.getConnection(url, user, password);
-        } catch (IOException | SQLException e) {
-            throw new RuntimeException("Eroare la initializarea conexiunii la baza de date", e);
+            this.url = props.getProperty("db.url");
+            this.user = props.getProperty("db.user");
+            this.password = props.getProperty("db.password");
+        } catch (IOException e) {
+            throw new RuntimeException("Eroare la citirea configuratiei bazei de date", e);
         }
     }
 
@@ -37,8 +37,11 @@ public class DatabaseConnection {
         return instance;
     }
 
-    public Connection getConnection() {
-        return connection;
+    public Connection getConnection() throws SQLException {
+        if (reusableConnection == null || reusableConnection.isClosed()) {
+            reusableConnection = DriverManager.getConnection(url, user, password);
+        }
+        return reusableConnection;
     }
 
     public static void closeConnection(Connection conn) {

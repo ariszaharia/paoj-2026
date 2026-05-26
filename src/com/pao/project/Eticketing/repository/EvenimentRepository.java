@@ -4,21 +4,29 @@ import com.pao.project.Eticketing.model.event.Concert;
 import com.pao.project.Eticketing.model.event.Eveniment;
 import com.pao.project.Eticketing.model.event.Locatie;
 import com.pao.project.Eticketing.model.event.Meci;
-import com.pao.project.Eticketing.util.DatabaseConnection;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class EvenimentRepository implements Repository<Eveniment, Integer> {
 
     private static final String SELECT_WITH_LOCATIE =
-            "SELECT e.*, l.id as loc_id, l.denumire as loc_denumire, l.oras, l.capacitate " +
-            "FROM evenimente e JOIN locatii l ON e.locatie_id = l.id";
+            "SELECT e.*, l.locatie_id as loc_id, l.denumire as loc_denumire, l.oras, l.capacitate " +
+            "FROM evenimente e JOIN locatii l ON e.locatie_id = l.locatie_id";
 
-    private Connection getConn() {
-        return DatabaseConnection.getInstance().getConnection();
+    private final Connection conn;
+
+    public EvenimentRepository(Connection conn) {
+        this.conn = conn;
     }
 
     private Eveniment mapRow(ResultSet rs) throws SQLException {
@@ -38,14 +46,14 @@ public class EvenimentRepository implements Repository<Eveniment, Integer> {
                     rs.getString("echipa_gazda"), rs.getString("echipa_oaspete"),
                     rs.getInt("av_tickets"));
         }
-        e.setId(rs.getInt("id"));
+        e.setId(rs.getInt("eveniment_id"));
         return e;
     }
 
     @Override
     public List<Eveniment> findAll() {
         List<Eveniment> evenimente = new ArrayList<>();
-        try (PreparedStatement ps = getConn().prepareStatement(SELECT_WITH_LOCATIE);
+        try (PreparedStatement ps = conn.prepareStatement(SELECT_WITH_LOCATIE);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 evenimente.add(mapRow(rs));
@@ -58,8 +66,8 @@ public class EvenimentRepository implements Repository<Eveniment, Integer> {
 
     @Override
     public Optional<Eveniment> findById(Integer id) {
-        String sql = SELECT_WITH_LOCATIE + " WHERE e.id = ?";
-        try (PreparedStatement ps = getConn().prepareStatement(sql)) {
+        String sql = SELECT_WITH_LOCATIE + " WHERE e.eveniment_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -72,10 +80,25 @@ public class EvenimentRepository implements Repository<Eveniment, Integer> {
         return Optional.empty();
     }
 
+    public Optional<Eveniment> findByDenumire(String denumire) {
+        String sql = SELECT_WITH_LOCATIE + " WHERE e.denumire = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, denumire);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(mapRow(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Eroare la preluarea evenimentului cu denumirea " + denumire, e);
+        }
+        return Optional.empty();
+    }
+
     @Override
     public void save(Eveniment ev) {
         String sql = "INSERT INTO evenimente (denumire, data, durata_minute, av_tickets, tip, locatie_id, artist, gen_muzical, echipa_gazda, echipa_oaspete) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement ps = getConn().prepareStatement(sql)) {
+        try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, ev.getDenumire());
             ps.setString(2, ev.getData());
             ps.setInt(3, ev.getDurataMinute());
@@ -95,6 +118,11 @@ public class EvenimentRepository implements Repository<Eveniment, Integer> {
                 ps.setString(10, m.getEchipaOaspete());
             }
             ps.executeUpdate();
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                if (keys.next()) {
+                    ev.setId(keys.getInt(1));
+                }
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -102,8 +130,8 @@ public class EvenimentRepository implements Repository<Eveniment, Integer> {
 
     @Override
     public void update(Eveniment ev) {
-        String sql = "UPDATE evenimente SET av_tickets = ? WHERE id = ?";
-        try (PreparedStatement ps = getConn().prepareStatement(sql)) {
+        String sql = "UPDATE evenimente SET av_tickets = ? WHERE eveniment_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, ev.getAvTickets());
             ps.setInt(2, ev.getId());
             ps.executeUpdate();
@@ -114,12 +142,38 @@ public class EvenimentRepository implements Repository<Eveniment, Integer> {
 
     @Override
     public void delete(Integer id) {
-        String sql = "DELETE FROM evenimente WHERE id = ?";
-        try (PreparedStatement ps = getConn().prepareStatement(sql)) {
+        String sql = "DELETE FROM evenimente WHERE eveniment_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public Map<Eveniment, Double> findTopNMostProfitableEvents(int n) {
+        Map<Eveniment, Double> topEvents = new LinkedHashMap<>();
+        String sql = "SELECT e.eveniment_id, SUM(b.pret * cb.cantitate) as total_revenue " +
+                     "FROM evenimente e " +
+                     "JOIN bilete b ON e.eveniment_id = b.eveniment_id " +
+                     "JOIN comenzi_bilete cb ON b.bilet_id = cb.bilet_id " +
+                     "GROUP BY e.eveniment_id " +
+                     "ORDER BY total_revenue DESC " +
+                     "LIMIT ?";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, n);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    int evenimentId = rs.getInt("eveniment_id");
+                    double totalRevenue = rs.getDouble("total_revenue");
+                    Optional<Eveniment> evenimentOpt = findById(evenimentId);
+                    evenimentOpt.ifPresent(eveniment -> topEvents.put(eveniment, totalRevenue));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Eroare la gasirea celor mai profitabile evenimente", e);
+        }
+        return topEvents;
     }
 }
